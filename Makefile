@@ -36,7 +36,7 @@ start: db.sqlite3
         --volume $$PWD/db.sqlite3:/opt/db.sqlite3 \
         --rm \
         $(IMAGE)
-	$(DOCKER) logs -f $(NAME)
+	$(DOCKER) logs -f $(NAME) &
 
 stop:
 	$(DOCKER) stop $(NAME)
