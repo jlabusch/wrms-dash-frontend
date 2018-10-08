@@ -14,15 +14,11 @@ build:
 	# collect static files into $(STATIC_VOL) and fix file ownership
 	$(DOCKER) run -it --rm -v $$PWD/static:/opt/static -v $(STATIC_VOL):/opt/staticserve $(IMAGE) ./manage.py collectstatic --noinput
 	$(DOCKER) run -it --rm -v $$PWD/static:/opt/static -v $(STATIC_VOL):/opt/staticserve $(IMAGE) chown -R $$(id -u):$$(id -g) /opt/static/admin /opt/staticserve
-	# If no DB, copy the default one into $(CONFIG_VOL)
-	CONTAINER=$$($(DOCKER) run -d -t -v $(CONFIG_VOL):/opt/config -e TERM=xterm --rm $(IMAGE) top) && \
-    $(DOCKER) exec -it $$CONTAINER cp -n /opt/db/db.sqlite3 /opt/config/ && \
-    $(DOCKER) stop $$CONTAINER
 
 network:
 	$(DOCKER) network list | grep -q $(NETWORK) || $(DOCKER) network create $(NETWORK)
 
-start:
+start: network
 	$(DOCKER) run \
         --name $(NAME) \
         --detach  \
@@ -33,7 +29,7 @@ start:
         --network $(NETWORK) \
         --volume /etc/localtime:/etc/localtime:ro \
         --volume $(STATIC_VOL):/opt/staticserve:ro \
-        --volume $(CONFIG_VOL):/opt/db \
+        --volume $(CONFIG_VOL):/opt/db:ro \
         --rm \
         $(IMAGE)
 	$(DOCKER) logs -f $(NAME) &

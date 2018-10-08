@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'dashboard.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db/db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'dashboard',
+        'USER': 'dashboard',
+        'PASSWORD': 'PUT_DB_PASS_HERE',
+        'HOST': 'wrms-dash-frontend-db',
+        'PORT': '5432'
     }
 }
 
