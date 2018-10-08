@@ -10,8 +10,9 @@ RUN pip install -r requirements.txt
 
 COPY . /opt/
 
-RUN test -e db.sqlite3 || \
-    sqlite3 db.sqlite3 ".databases" && ./manage.py makemigrations && ./manage.py migrate
+RUN mkdir -p db && \
+    test -e db/db.sqlite3 || \
+    sqlite3 db/db.sqlite3 ".databases" && ./manage.py makemigrations && ./manage.py migrate
 
 CMD [ \
     "gunicorn", \
