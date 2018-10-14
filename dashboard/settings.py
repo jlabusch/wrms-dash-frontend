@@ -80,12 +80,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dashboard',
         'USER': 'dashboard',
-        'PASSWORD': 'PUT_DB_PASS_HERE',
+        'PASSWORD': os.getenv('DB_PASS'),
         'HOST': 'wrms-dash-frontend-db',
         'PORT': '5432'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

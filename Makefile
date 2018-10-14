@@ -1,24 +1,30 @@
-.PHONY: build network start stop clean
+.PHONY: deps build network start stop clean
 
 DOCKER=docker
 IMAGE=jlabusch/wrms-dash-frontend
 NAME=wrms-dash-frontend
-STATIC_VOL=wrms-dash-frontend-vol
 CONFIG_VOL=wrms-dash-config-vol
 NETWORK=wrms-dash-net
+BUILD=$(shell ls ./wrms-dash-build-funcs/build.sh 2>/dev/null || ls ../wrms-dash-build-funcs/build.sh 2>/dev/null)
+SHELL:=/bin/bash
 
-build:
+deps:
+	@test -n "$(BUILD)" || (echo 'wrms-dash-build-funcs not found; do you need "git submodule update --init"?'; false)
+	@echo "Using $(BUILD)"
+	@$(BUILD) volume exists $(CONFIG_VOL) || $(BUILD) error "Can't find docker volume $(CONFIG_VOL) - do you need to build wrms-dash-frontend-db?"
+
+build: deps
 	@mkdir -p ./static/admin
-	$(DOCKER) volume ls | grep -q $(STATIC_VOL) || $(DOCKER) volume create $(STATIC_VOL)
-	$(DOCKER) build -t $(IMAGE) .
-	# collect static files into $(STATIC_VOL) and fix file ownership
-	$(DOCKER) run -it --rm -v $$PWD/static:/opt/static -v $(STATIC_VOL):/opt/staticserve $(IMAGE) ./manage.py collectstatic --noinput
-	$(DOCKER) run -it --rm -v $$PWD/static:/opt/static -v $(STATIC_VOL):/opt/staticserve $(IMAGE) chown -R $$(id -u):$$(id -g) /opt/static/admin /opt/staticserve
+	$(BUILD) build $(IMAGE)
 
 network:
-	$(DOCKER) network list | grep -q $(NETWORK) || $(DOCKER) network create $(NETWORK)
+	$(BUILD) network create $(NETWORK)
 
 start: network
+	@mkdir -p ./db
+	@$(BUILD) cp alpine $(CONFIG_VOL) $$PWD/db /vol0/pgpass /vol1/
+	export DB_PASS=$$(cat ./db/pgpass | tr -d '\n') && \
+	rm -fr ./db && \
 	$(DOCKER) run \
         --name $(NAME) \
         --detach  \
@@ -26,10 +32,9 @@ start: network
         --env DJANGO_DEBUG \
         --env DJANGO_SECRET \
         --env DJANGO_BACKEND_URI=http://wrms-dash-api:80 \
+        --env DB_PASS \
         --network $(NETWORK) \
         --volume /etc/localtime:/etc/localtime:ro \
-        --volume $(STATIC_VOL):/opt/staticserve:ro \
-        --volume $(CONFIG_VOL):/opt/db:ro \
         --rm \
         $(IMAGE)
 	$(DOCKER) logs -f $(NAME) &
@@ -38,6 +43,5 @@ stop:
 	$(DOCKER) stop $(NAME)
 
 clean:
-	$(DOCKER) rmi $(IMAGE) $$($(DOCKER) images --filter dangling=true -q)
-	$(DOCKER) volume rm $(STATIC_VOL)
+	$(BUILD) image delete $(IMAGE) || :
 
