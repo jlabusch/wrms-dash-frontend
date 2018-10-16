@@ -278,19 +278,25 @@ function get_sla_hours(expected_result){
         o.hAxis = o.vAxis;
         o.vAxis = o.__a;
 
-        var used_sla_hours = data.result.reduce(sum_sla_hours, 0);
+        var used_sla_hours = data.result.reduce(sum_sla_hours, 0),
+            only_monthly = true;
 
-        if (used_sla_hours !== expected_result){
+        if (data.types && data.types.length){
+            data.types.forEach(t => {
+                if (t !== 'month'){
+                    only_monthly = false;
+                }
+            });
+        }else{
+            data.types = ['month'];
+        }
+
+        if (only_monthly && used_sla_hours !== expected_result){
             console.log('SLA hours: expected ' + expected_result + ', got ' + used_sla_hours);
             used_sla_hours = expected_result;
         }
 
-        var note = 'Used ' + used_sla_hours + ' of ' + data.budget;
-        if (data.types && data.types.length){
-            note += ' ' + data.types.join('+').replace('month', 'monthly');
-        }
-        note += ' hours';
-        document.getElementById('chart-15-notes').innerText = note;
+        document.getElementById('chart-15-notes').innerText = 'Used ' + used_sla_hours + ' of ' + data.budget + ' ' + data.types.join('+').replace('month', 'monthly') + ' hours';
 
         // Target format is
         //  ['Category', 'Hours', {role: 'style'}],
