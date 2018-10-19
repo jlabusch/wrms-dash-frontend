@@ -3,7 +3,6 @@
 DOCKER=docker
 IMAGE=jlabusch/wrms-dash-frontend
 NAME=wrms-dash-frontend
-CONFIG_VOL=wrms-dash-config-vol
 NETWORK=wrms-dash-net
 BUILD=$(shell ls ./wrms-dash-build-funcs/build.sh 2>/dev/null || ls ../wrms-dash-build-funcs/build.sh 2>/dev/null)
 SHELL:=/bin/bash
@@ -11,7 +10,6 @@ SHELL:=/bin/bash
 deps:
 	@test -n "$(BUILD)" || (echo 'wrms-dash-build-funcs not found; do you need "git submodule update --init"?'; false)
 	@echo "Using $(BUILD)"
-	@$(BUILD) volume exists $(CONFIG_VOL) || $(BUILD) error "Can't find docker volume $(CONFIG_VOL) - do you need to build wrms-dash-frontend-db?"
 
 build: deps
 	@mkdir -p ./static/admin
@@ -21,10 +19,7 @@ network:
 	$(BUILD) network create $(NETWORK)
 
 start: network
-	@mkdir -p ./db
-	@$(BUILD) cp alpine $(CONFIG_VOL) $$PWD/db /vol0/pgpass /vol1/
-	export DB_PASS=$$(cat ./db/pgpass | tr -d '\n') && \
-	rm -fr ./db && \
+	test -n "$$DB_PASS" || (echo 'DB_PASS not set - try "export DB_PASS=`cat ../wrms-dash-frontend-db/pgpass`"'; false)
 	$(DOCKER) run \
         --name $(NAME) \
         --detach  \
