@@ -12,7 +12,7 @@ import requests
 import os
 
 
-API_SERVER = os.getenv("DJANGO_BACKEND_URI", "http://mango.btn.catalyst-eu.net:8004")
+API_SERVER = os.getenv("DJANGO_BACKEND_URI")
 
 @method_decorator(login_required, name='dispatch')
 class IndexView(generic.TemplateView):
@@ -22,19 +22,16 @@ class IndexView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context["month"] = datetime.datetime.now().strftime("%Y-%m")
         context["systems"] = "default"
-        context["client"] = "__vendor"
         if self.request.user.is_superuser:
+            context["client"] = "__vendor"
             context["groups"] = Group.objects.exclude(id__in=self.request.user.groups.all().values_list('id', flat=True))
         else:
+            context["client"] = self.request.user.groups.all()[0]
             context["groups"] = self.request.user.groups.all()
         return context
 
     def dispatch(self, request):
-        if not self.request.user.is_superuser:
-            client = self.request.user.groups.all()[0]
-            return redirect ('proxy:dashboard', client=client)
-        else:
-            return super().dispatch(request)
+        return super().dispatch(request)
 
 
 @method_decorator(login_required, name='dispatch')

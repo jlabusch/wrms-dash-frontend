@@ -1,4 +1,6 @@
-URI_EXT = '__vendor/default/2017-7';
+if (ORG !== '__vendor'){
+    $('a.navbar-brand').hide();
+}
 
 var tile_exists = {};
 
@@ -83,7 +85,6 @@ function handle_count(org, i, color, next){
         }
         var count = '';
         if (typeof(data.result) === 'number'){
-            console.log(org.name + ': ' + data.result);
             count = data.result;
         }
         next(org, i, color, count);
