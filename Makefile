@@ -19,7 +19,6 @@ network:
 	$(BUILD) network create $(NETWORK)
 
 start: network
-	test -n "$$DB_PASS" || (echo 'DB_PASS not set - try "export DB_PASS=`cat ../wrms-dash-frontend-db/pgpass`"'; false)
 	$(DOCKER) run \
         --name $(NAME) \
         --detach  \
