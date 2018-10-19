@@ -95,13 +95,15 @@ function draw_tile(org, i, color, count){
     if (count === undefined){
         count = '';
     }
-    $('.chart-wrapper:eq(' + i + ')').html(
-        '<a href="/dashboard/' + org.org_id + '/' + org.systems + '/">' +
-            '<div class="index-tile ' + color + '">' +
-                '<span class="tile-count">' + count + '</span>' +
-                '<span class="tile-name">' + org.name.replace(/ SLA /, ' ').replace(/\d\d\d\d\s?-\s?/, '') + '</span>' +
-            '</div>' +
-        '</a>'
+    $('.col-sm-2:eq(' + i + ')').html(
+        '<div class="chart-wrapper">' +
+            '<a href="/dashboard/' + org.org_id + '/' + org.systems + '/">' +
+                '<div class="index-tile ' + color + '">' +
+                    '<span class="tile-count">' + count + '</span>' +
+                    '<span class="tile-name">' + org.name.replace(/ SLA /, ' ').replace(/\d\d\d\d\s?-\s?/, '') + '</span>' +
+                '</div>' +
+            '</a>' +
+        '</div>'
     );
 }
 
