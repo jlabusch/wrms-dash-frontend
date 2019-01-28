@@ -94,11 +94,14 @@
 
       <div class="col-sm-4">
         <div class="basic faq" style="height:293px">
-          <span class="glyphicon glyphicon-stats ficon"></span> <span class="title">Earned SLA revenue as hours:</span>
+          <span class="glyphicon glyphicon-stats ficon"></span> <span class="title">Earned SLA+Additional revenue as hours:</span>
           <ul>
-            <li>Each person is allocated a portion of a WR's earned revenue based on their proportion of the WR's timesheets</li>
-            <li>Revenue is only recognised in the month in which the WR is completed (status "Production Ready", "For Sign Off" or "Finished")</li>
-            <li>This only includes time on SLA work, i.e. stuff that's visible to the dashboard</li>
+            <li>Each person is allocated a portion of a WR's earned revenue based on their proportion of the WR's timesheets.
+                For example, a WR quoted at 20 hours that takes 10 hours of dev and 6 hours of QA and has 4 hours of unused contingency
+                will credit the dev with 10/14*20 hours of revenue and the tester with 4/14*20 hours.</li>
+            <li>For WRs with no quotes, time earned is just time spent by that person.
+            <li>Revenue is only recognised in the month in which the WR is completed (status "Production Ready", "For Sign Off" or "Finished").</li>
+            <li>This only includes chargeable time on SLA contracts, i.e. hours that are visible on the dashboard.</li>
             <li>When thinking about an individual, also take into account work that's not captured here - documentation, mentoring, research, projects, etc.</li>
           </ul>
         </div>
