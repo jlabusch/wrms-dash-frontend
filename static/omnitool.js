@@ -139,6 +139,56 @@ var chart14 = new Keen.Dataviz()
     .chartOptions(donut_options)
     .prepare();
 
+function get_earned_revenue(){
+    query('/earned_revenue', function(err, rev_data){
+        if (err){
+            console.log('earned revenue: ' + err);
+            render(chart16, [])(err);
+            return;
+        }
+
+        var table = [],
+            people = rev_data.people.sort();
+
+        //console.log(rev_data);
+
+        table.push(['Month']);
+        people.forEach(function(person){
+            table[0].push(person);
+            table[0].push({type: 'string', role: 'tooltip', p: {html: true}});
+        });
+
+        Object.keys(rev_data.months).sort().forEach(function(month){
+            var tr = [month];
+
+            people.forEach(function(person){
+                var p = rev_data.months[month][person] || {hours: 0, wrs: {}},
+                    h = Math.round(p.hours*10)/10;
+                tr.push(p.hours);
+
+                var tt = '<b>' + person + '</b>: ' + h + '&nbsp;hours&nbsp;earned'
+                Object.keys(p.wrs).forEach(function (w){
+                    tt += '<br>&nbsp;- ' + w + ': ' + (Math.round(p.wrs[w]*10)/10) + ' hours';
+                });
+                tr.push(tt);
+            });
+
+            table.push(tr);
+        });
+
+        var c = new google.visualization.BarChart(document.getElementById('chart-16'));
+
+        var o = JSON.parse(JSON.stringify(std_gchart_options));
+
+        o.colors = default_colors;
+        o.orientation = 'vertical';
+        o.tooltip = {isHtml: true};
+        o.isStacked = true;
+
+        c.draw(google.visualization.arrayToDataTable(table), o);
+    });
+}
+
 function get_invoices(){
     query('/invoices', function(err, inv_data){
         if (err){
@@ -454,6 +504,7 @@ function get_new_sysadmin_wrs(){
 }
 
 function draw_custom_charts(){
+    get_earned_revenue();
     get_fte_budgets();
     get_wrs_to_invoice();
     get_additional_wrs_unquoted();
