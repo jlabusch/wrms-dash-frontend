@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'proxy.apps.ProxyConfig',
-    'pipeline'
+    'pipeline',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -48,10 +49,15 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware'
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'dashboard.urls'
+
+CORS_ORIGIN_WHITELIST = [
+    "https://wrms.catalyst.net.nz"
+]
 
 TEMPLATES = [
     {
