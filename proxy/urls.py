@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^dashboard/(?P<client>[_a-z0-9A-Z ]+)/(?P<systems>[a-z0-9,]+)/(?P<month>[0-9\\-]*)$',views.DashboardView.as_view(),  name='dashboard'),
     url(r'^carousel',                                                                       views.CarouselView.as_view(),   name='carousel'),
     url(r'^omnitool',                                                                       views.OmnitoolView.as_view(),   name='omnitool'),
-    url(r'^api/(?P<item>[a-z_]+)/(?P<client>[_a-z0-9A-Z ]+)/(?P<systems>[a-z0-9,]+)/(?P<month>[0-9\\-]+)$', views.Api.as_view(), name='api')
+    url(r'^api/(?P<item>[a-z_]+)/(?P<client>[_a-z0-9A-Z ]+)/(?P<systems>[a-z0-9,]+)/(?P<month>[0-9\\-]+)$', views.Api.as_view(), name='api'),
+    url(r'^authapi/(?P<item>[a-z_]+)/(?P<client>[_a-z0-9A-Z ]+)/(?P<month>[0-9\\-]+)/(?P<auth>[\w\-]+)$', views.AuthApi.as_view(), name='authapi')
 ]

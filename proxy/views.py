@@ -117,7 +117,8 @@ class DashboardView(generic.TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class Api(generic.TemplateView):
-    def get(self, request, item, client, systems, month):
+    @staticmethod
+    def get(request, item, client, systems, month):
         if not is_member(request.user, client) and not request.user.is_superuser:
             raise PermissionDenied()
         # The API itself has an additional layer of protection in making
@@ -142,6 +143,24 @@ class Api(generic.TemplateView):
         url = "{}/api/{}/{}/{}/{}".format(API_SERVER, item, client, systems, month)
         jsondata = requests.get(url).text
         return HttpResponse(jsondata, content_type='application/json')
+
+
+@method_decorator(login_required, name='dispatch')
+class AuthApi(generic.TemplateView):
+    @staticmethod
+    def get(request, item, client, month, auth):
+        # run security checks for org access
+        auth_cookies = dict(wrms3_auth=auth)
+        auth_result = requests.get("https://wrms.catalyst.net.nz/api2/organisations", cookies=auth_cookies).json()["response"]["body"]
+
+        allowed_orgs = []
+        for org in auth_result:
+            allowed_orgs.append(int(org["id"]))
+
+        if int(client) in allowed_orgs:
+            return Api.get(request=request, item=item, client=client, systems="default", month=month)
+        else:
+            return HttpResponse("Access Denied")
 
 
 def is_member(user, group):

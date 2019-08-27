@@ -59,6 +59,8 @@ CORS_ORIGIN_WHITELIST = [
     "https://wrms.catalyst.net.nz"
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
