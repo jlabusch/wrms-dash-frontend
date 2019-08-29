@@ -117,8 +117,7 @@ class DashboardView(generic.TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class Api(generic.TemplateView):
-    @staticmethod
-    def get(request, item, client, systems, month):
+    def get(self, request, item, client, systems, month):
         if not is_member(request.user, client) and not request.user.is_superuser:
             raise PermissionDenied()
         # The API itself has an additional layer of protection in making
