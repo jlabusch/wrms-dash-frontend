@@ -46,8 +46,7 @@ function make_metric(el){
 
 var chart08 = make_metric('#chart-08'),
     chart09 = make_metric('#chart-09'),
-    chart10 = make_metric('#chart-10'),
-    chart15 = make_metric('#chart-15').height(250);
+    chart10 = make_metric('#chart-10').height(250);
 
 function filter_by_month(){
     render_invoices(this.value);
@@ -122,22 +121,6 @@ function render_fte_budgets(contract_to_render){
     chart09.title('Avg FTE (max ' + to_fte(metrics.internal.max, 1) + ')');
     render(chart09)(null, {result: to_fte(metrics.internal.total) });
 }
-
-var chart13 = new Keen.Dataviz()
-    .el('#chart-13')
-    .colors(default_colors)
-    .height(350)
-    .type('donut')
-    .chartOptions(donut_options)
-    .prepare();
-
-var chart14 = new Keen.Dataviz()
-    .el('#chart-14')
-    .colors(default_colors)
-    .height(350)
-    .type('donut')
-    .chartOptions(donut_options)
-    .prepare();
 
 function get_earned_revenue(){
     query('/earned_revenue', function(err, rev_data){
@@ -273,93 +256,6 @@ function render_invoices(month){
     }
 }
 
-function render_mis_vs_timesheets(){
-    var table = [
-        ['Month', 'Invoices', 'Client hours', 'SLA fees']
-    ];
-
-    var std_GBP_rate = 85,
-        max_fte = 0,
-        total_fte = 0;
-
-    cached_fte_data.periods.sort(period_date_sort).map(function(fte_row){
-        var ts_row = cached_timesheet_data[fte_row.month],
-            ts = ts_row ? ts_row.total : 0, // maybe nobody has timesheeted to the current month yet
-            mis_row = cached_mis_data[fte_row.month];
-
-        max_fte = Math.max(max_fte, ts);
-        total_fte += ts;
-
-        table.push([
-            fte_row.month,
-            mis_row ? mis_row.sales/std_GBP_rate : 0,
-            ts,
-            fte_row.sla_fee_hours.total
-        ]);
-    });
-
-    var chart12 = new google.visualization.AreaChart(document.getElementById('chart-12'));
-
-    var o = JSON.parse(JSON.stringify(std_gchart_options));
-    o.chartArea.width = '80%';
-    o.legend = {position: 'right'};
-    o.colors = default_colors;
-
-    chart12.draw(google.visualization.arrayToDataTable(table), o);
-
-    chart15.title('Avg FTE (max ' + to_fte(max_fte, 1) + ')');
-    render(chart15)(null, {result: to_fte(total_fte) });
-}
-
-function get_mis_report(){
-    query('/mis_report', function(err, mis_data){
-        if (err){
-            console.log('mis_report: ' + err);
-            return;
-        }
-
-        var now = new Date();
-
-        if (!mis_data || !mis_data[now.getFullYear() + '-1']){
-            (new Keen.Dataviz())
-                .el('#chart-12')
-                .type('message')
-                .message('No data');
-            render(chart13)({message: 'No data available'});
-            return;
-        }
-
-        cached_mis_data = mis_data;
-
-        render_mis_vs_timesheets();
-    }, undefined, 0);
-}
-
-function get_raw_timesheets(){
-    query('/raw_timesheets', function(err, ts_data){
-        if (err){
-            console.log('raw_timesheets: ' + err);
-            render(chart13)(err);
-            return;
-        }
-
-        var now = new Date();
-
-        if (!ts_data || !ts_data[now.getFullYear() + '-1']){
-            (new Keen.Dataviz())
-                .el('#chart-12')
-                .type('message')
-                .message('No data');
-            return;
-        }
-
-        cached_timesheet_data = ts_data;
-
-        get_invoices();
-        get_mis_report();
-    }, undefined, 0);
-}
-
 function get_fte_budgets(){
     query('/fte_budgets', function(err, fte_data){
         if (err){
@@ -368,7 +264,7 @@ function get_fte_budgets(){
         }
 
         if (!fte_data || !fte_data.periods || fte_data.periods.length < 1){
-            ['06', '07', '08', '09', '10', '11', '12', '13', '14', '15'].forEach(function(x){
+            ['06', '07', '08', '09', '10', '11'].forEach(function(x){
                 (new Keen.Dataviz())
                     .el('#chart-'+x)
                     .type('message')
