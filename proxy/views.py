@@ -79,7 +79,7 @@ class DashboardView(generic.TemplateView):
         if systems is None:
             systems = "default"
 
-        if month is '' or month is None:
+        if month == '' or month is None:
             month = datetime.datetime.now().strftime("%Y-%m")
 
         month_dt = datetime.datetime.strptime(month, "%Y-%m")
