@@ -122,6 +122,64 @@ function render_fte_budgets(contract_to_render){
     render(chart09)(null, {result: to_fte(metrics.internal.total) });
 }
 
+function sum_team_hours(data, team, month){
+    var n = 0;
+
+    if (data['by_team'] && data.by_team[team] && data.by_team[team][month]){
+        Object.keys(data.by_team[team][month]).forEach((customer) => {
+            n += data.by_team[team][month][customer];
+        });
+    }
+
+    return n;
+}
+
+function get_earned_team_hours(){
+    query('/earned_hours_by_team', function(err, team_data){
+        if (err){
+            console.log('earned hours: ' + err);
+            render(chart17, [])(err);
+            return;
+        }
+
+        console.log({hours_by_team: team_data});
+
+        var table = [
+            ['Team', 'Target'].concat(team_data.months.sort())
+        ];
+
+        [
+            ['mi6', 'MI6'],
+            ['n7', 'N7'],
+            ['sre', 'SRE'],
+            ['Other', 'Other']
+        ].forEach(kv => {
+            var team_key = kv[0];
+            var team_name = kv[1];
+            var arr = [
+                team_name,
+                team_data.by_team[team_key].target
+            ];
+            team_data.months.sort().forEach(m => {
+                arr.push(sum_team_hours(team_data, team_key, m));
+            });
+            table.push(arr);
+        });
+
+        var c = new google.visualization.BarChart(document.getElementById('chart-17'));
+
+        var o = JSON.parse(JSON.stringify(std_gchart_options));
+
+        o.colors = [default_colors[0], '#ddd', '#ddd', default_colors[5]];
+        o.orientation = 'vertical';
+        o.tooltip = {isHtml: true};
+        o.isStacked = false;
+        o.bars = 'horizontal';
+
+        c.draw(google.visualization.arrayToDataTable(table), o);
+    });
+}
+
 function get_earned_revenue(){
     query('/earned_revenue', function(err, rev_data){
         if (err){
@@ -284,8 +342,6 @@ function get_fte_budgets(){
         cached_fte_data = fte_data;
 
         render_fte_budgets(null);
-
-        get_raw_timesheets();
     }, undefined, 0);
 }
 
@@ -401,6 +457,7 @@ function get_new_sysadmin_wrs(){
 
 function draw_custom_charts(){
     get_earned_revenue();
+    get_earned_team_hours();
     get_fte_budgets();
     get_wrs_to_invoice();
     get_additional_wrs_unquoted();
