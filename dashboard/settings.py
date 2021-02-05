@@ -152,3 +152,9 @@ PIPELINE = {
 
 LOGIN_REDIRECT_URL = 'proxy:index'
 
+AUTHENTICATION_BACKENDS = (
+#AUTHENTICATION_BACKENDS = ( 'path.to.your.MyCustomBackend', )
+#You might have 'project.backend.MyCustomBackend' - this could be backend.py in your project file, with a class name of MyCustomBackend
+    'proxy.auth.WrmsBackend',
+    'django.contrib.auth.backends.ModelBackend'
+)
